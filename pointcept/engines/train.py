@@ -138,7 +138,10 @@ class Trainer(TrainerBase):
         self.model = self.build_model()
         self.logger.info("=> Building writer ...")
         self.writer = self.build_writer()
-        self.wandb_logger = self.build_wandb()
+        if comm.get_rank() == 0:
+            self.wandb_logger = self.build_wandb()
+        else:
+            self.wandb_logger = None
         self.logger.info("=> Building train dataset & dataloader ...")
         self.train_loader = self.build_train_loader()
         self.logger.info("=> Building val dataset & dataloader ...")
