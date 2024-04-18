@@ -18,6 +18,7 @@ if sys.version_info >= (3, 10):
 else:
     from collections import Iterator
 from tensorboardX import SummaryWriter
+import wandb
 
 from .defaults import create_ddp_model, worker_init_fn
 from .hooks import HookBase, build_hooks
@@ -45,6 +46,7 @@ class TrainerBase:
         self.data_iterator: Iterator = enumerate([])
         self.storage: EventStorage
         self.writer: SummaryWriter
+        self.wandb_logger: wandb.sdk.wandb_run.Run
 
     def register_hooks(self, hooks) -> None:
         hooks = build_hooks(hooks)
@@ -111,6 +113,7 @@ class TrainerBase:
             h.after_train()
         if comm.is_main_process():
             self.writer.close()
+            self.wandb_logger.finish()
 
 
 @TRAINERS.register_module("DefaultTrainer")
@@ -133,6 +136,7 @@ class Trainer(TrainerBase):
         self.model = self.build_model()
         self.logger.info("=> Building writer ...")
         self.writer = self.build_writer()
+        self.wandb_logger = self.build_wandb()
         self.logger.info("=> Building train dataset & dataloader ...")
         self.train_loader = self.build_train_loader()
         self.logger.info("=> Building val dataset & dataloader ...")
@@ -218,6 +222,15 @@ class Trainer(TrainerBase):
         writer = SummaryWriter(self.cfg.save_path) if comm.is_main_process() else None
         self.logger.info(f"Tensorboard writer logging dir: {self.cfg.save_path}")
         return writer
+    
+    def build_wandb(self):
+        _wandb = wandb.init(
+            project="pointcept",
+            name=self.cfg.save_path.split("/")[-1],
+            config=self.cfg,
+            dir = self.cfg.save_path,
+        )
+        return _wandb
 
     def build_train_loader(self):
         train_data = build_dataset(self.cfg.data.train)
