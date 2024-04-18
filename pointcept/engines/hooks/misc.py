@@ -127,12 +127,12 @@ class InformationWriter(HookBase):
                     self.curr_iter,
                 )
         if self.trainer.wandb_logger is not None:
-            self.trainer.wandb_logger.log({"lr": lr}, step=self.curr_iter)
+            log_dict = {}
+            log_dict["train_batch/lr"] = lr
             for key in self.model_output_keys:
-                self.trainer.wandb_logger.log(
-                    {f"train_batch/{key}": self.trainer.storage.history(key).val},
-                    step=self.curr_iter,
-                )
+                log_dict[f"train_batch/{key}"] = self.trainer.storage.history(key).val
+            log_dict["train_batch/step"] = self.curr_iter
+            self.trainer.wandb_logger.log(log_dict)
 
     def after_epoch(self):
         epoch_info = "Train result: "
@@ -149,11 +149,11 @@ class InformationWriter(HookBase):
                     self.trainer.epoch + 1,
                 )
         if self.trainer.wandb_logger is not None:
+            log_dict = {}
             for key in self.model_output_keys:
-                self.trainer.wandb_logger.log(
-                    {f"train/{key}": self.trainer.storage.history(key).avg},
-                    step=self.trainer.epoch + 1,
-                )
+                log_dict[f"train/{key}"] = self.trainer.storage.history(key).avg
+            log_dict["train/step"] = self.trainer.epoch + 1
+            self.trainer.wandb_logger.log(log_dict)
 
 
 @HOOKS.register_module()

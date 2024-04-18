@@ -95,12 +95,12 @@ class ClsEvaluator(HookBase):
         if self.trainer.wandb_logger is not None:
             self.trainer.wandb_logger.log(
                 {
+                    "val/step": current_epoch,
                     "val/loss": loss_avg,
                     "val/mIoU": m_iou,
                     "val/mAcc": m_acc,
                     "val/allAcc": all_acc,
-                },
-                step=current_epoch,
+                }
             )
         self.trainer.logger.info("<<<<<<<<<<<<<<<<< End Evaluation <<<<<<<<<<<<<<<<<")
         self.trainer.comm_info["current_metric_value"] = all_acc  # save for saver
@@ -204,12 +204,12 @@ class SemSegEvaluator(HookBase):
         if self.trainer.wandb_logger is not None:
             self.trainer.wandb_logger.log(
                 {
+                    "val/step": current_epoch,
                     "val/loss": loss_avg,
                     "val/mIoU": m_iou,
                     "val/mAcc": m_acc,
                     "val/allAcc": all_acc,
-                },
-                step=current_epoch,
+                }
             )
         self.trainer.logger.info("<<<<<<<<<<<<<<<<< End Evaluation <<<<<<<<<<<<<<<<<")
         self.trainer.comm_info["current_metric_value"] = m_iou  # save for saver
@@ -599,12 +599,12 @@ class InsSegEvaluator(HookBase):
         if self.trainer.wandb_logger is not None:
             self.trainer.wandb_logger.log(
                 {
+                    "val/step": current_epoch,
                     "val/loss": loss_avg,
                     "val/mAP": all_ap,
                     "val/AP50": all_ap_50,
                     "val/AP25": all_ap_25,
-                },
-                step=current_epoch,
+                }
             )
         self.trainer.logger.info("<<<<<<<<<<<<<<<<< End Evaluation <<<<<<<<<<<<<<<<<")
         self.trainer.comm_info["current_metric_value"] = all_ap_50  # save for saver
