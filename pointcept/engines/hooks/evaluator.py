@@ -92,7 +92,8 @@ class ClsEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/mIoU", m_iou, current_epoch)
             self.trainer.writer.add_scalar("val/mAcc", m_acc, current_epoch)
             self.trainer.writer.add_scalar("val/allAcc", all_acc, current_epoch)
-            self.wandb_logger.log(
+        if self.trainer.wandb_logger is not None:
+            self.trainer.wandb_logger.log(
                 {
                     "val/loss": loss_avg,
                     "val/mIoU": m_iou,
@@ -200,7 +201,8 @@ class SemSegEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/mIoU", m_iou, current_epoch)
             self.trainer.writer.add_scalar("val/mAcc", m_acc, current_epoch)
             self.trainer.writer.add_scalar("val/allAcc", all_acc, current_epoch)
-            self.wandb_logger.log(
+        if self.trainer.wandb_logger is not None:
+            self.trainer.wandb_logger.log(
                 {
                     "val/loss": loss_avg,
                     "val/mIoU": m_iou,
@@ -594,7 +596,8 @@ class InsSegEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/mAP", all_ap, current_epoch)
             self.trainer.writer.add_scalar("val/AP50", all_ap_50, current_epoch)
             self.trainer.writer.add_scalar("val/AP25", all_ap_25, current_epoch)
-            self.wandb_logger.log(
+        if self.trainer.wandb_logger is not None:
+            self.trainer.wandb_logger.log(
                 {
                     "val/loss": loss_avg,
                     "val/mAP": all_ap,

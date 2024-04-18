@@ -112,8 +112,10 @@ class TrainerBase:
         for h in self.hooks:
             h.after_train()
         if comm.is_main_process():
-            self.writer.close()
-            self.wandb_logger.finish()
+            if self.writer is not None:
+                self.writer.close()
+            if self.wandb_logger is not None:
+                self.wandb_logger.finish()
 
 
 @TRAINERS.register_module("DefaultTrainer")
