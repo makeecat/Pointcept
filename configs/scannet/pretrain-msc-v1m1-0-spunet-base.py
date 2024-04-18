@@ -5,7 +5,7 @@ batch_size = 32  # bs: total bs in all gpus
 num_worker = 32
 mix_prob = 0
 empty_cache = False
-enable_amp = False
+enable_amp = True
 evaluate = False
 find_unused_parameters = False
 
