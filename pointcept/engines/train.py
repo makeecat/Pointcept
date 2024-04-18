@@ -235,7 +235,7 @@ class Trainer(TrainerBase):
             config=self.cfg,
             dir = self.cfg.save_path,
         )
-        _wandb.watch(self.model)
+        # _wandb.watch(self.model)
         return _wandb
 
     def build_train_loader(self):
