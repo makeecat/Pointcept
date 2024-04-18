@@ -80,6 +80,8 @@ class InformationWriter(HookBase):
     def __init__(self):
         self.curr_iter = 0
         self.model_output_keys = []
+        self.wandb_define_metric_step = False
+        self.wandb_define_metric_epoch = False
 
     def before_train(self):
         self.trainer.comm_info["iter_info"] = ""
@@ -127,6 +129,15 @@ class InformationWriter(HookBase):
                     self.curr_iter,
                 )
         if self.trainer.wandb_logger is not None:
+            if not self.wandb_define_metric_step:
+                self.trainer.wandb_logger.define_metric("train_batch/step")
+                self.trainer.wandb_logger.define_metric("train_batch/lr", step_metric="train_batch/step")
+                for key in self.model_output_keys:
+                    self.trainer.wandb_logger.define_metric(
+                        f"train_batch/{key}", step_metric="train_batch/step"
+                    )
+                self.wandb_define_metric_step = True
+
             log_dict = {}
             log_dict["train_batch/lr"] = lr
             for key in self.model_output_keys:
@@ -149,6 +160,14 @@ class InformationWriter(HookBase):
                     self.trainer.epoch + 1,
                 )
         if self.trainer.wandb_logger is not None:
+            if not self.wandb_define_metric_epoch:
+                self.trainer.wandb_logger.define_metric("train/step")
+                for key in self.model_output_keys:
+                    self.trainer.wandb_logger.define_metric(
+                        f"train/{key}", step_metric="train/step"
+                    )
+                self.wandb_define_metric_epoch = True
+
             log_dict = {}
             for key in self.model_output_keys:
                 log_dict[f"train/{key}"] = self.trainer.storage.history(key).avg

@@ -20,6 +20,8 @@ from .builder import HOOKS
 
 @HOOKS.register_module()
 class ClsEvaluator(HookBase):
+    def __init__(self):
+        self.wandb_define_metric = False
     def after_epoch(self):
         if self.trainer.cfg.evaluate:
             self.eval()
@@ -93,6 +95,13 @@ class ClsEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/mAcc", m_acc, current_epoch)
             self.trainer.writer.add_scalar("val/allAcc", all_acc, current_epoch)
         if self.trainer.wandb_logger is not None:
+            if not self.wandb_define_metric:
+                self.trainer.wandb_logger.define_metric("val/step")
+                self.trainer.wandb_logger.define_metric("val/loss", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/mIoU", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/mAcc", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/allAcc", step_metric="val/step")
+                self.wandb_define_metric = True
             self.trainer.wandb_logger.log(
                 {
                     "val/step": current_epoch,
@@ -114,6 +123,8 @@ class ClsEvaluator(HookBase):
 
 @HOOKS.register_module()
 class SemSegEvaluator(HookBase):
+    def __init__(self):
+        self.wandb_define_metric = False
     def after_epoch(self):
         if self.trainer.cfg.evaluate:
             self.eval()
@@ -202,6 +213,13 @@ class SemSegEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/mAcc", m_acc, current_epoch)
             self.trainer.writer.add_scalar("val/allAcc", all_acc, current_epoch)
         if self.trainer.wandb_logger is not None:
+            if not self.wandb_define_metric:
+                self.trainer.wandb_logger.define_metric("val/step")
+                self.trainer.wandb_logger.define_metric("val/loss", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/mIoU", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/mAcc", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/allAcc", step_metric="val/step")
+                self.wandb_define_metric = True
             self.trainer.wandb_logger.log(
                 {
                     "val/step": current_epoch,
@@ -232,6 +250,7 @@ class InsSegEvaluator(HookBase):
         self.min_region_sizes = 100
         self.distance_threshes = float("inf")
         self.distance_confs = -float("inf")
+        self.wandb_define_metric = False
 
     def before_train(self):
         self.valid_class_names = [
@@ -597,6 +616,13 @@ class InsSegEvaluator(HookBase):
             self.trainer.writer.add_scalar("val/AP50", all_ap_50, current_epoch)
             self.trainer.writer.add_scalar("val/AP25", all_ap_25, current_epoch)
         if self.trainer.wandb_logger is not None:
+            if not self.wandb_define_metric:
+                self.trainer.wandb_logger.define_metric("val/step")
+                self.trainer.wandb_logger.define_metric("val/loss", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/mAP", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/AP50", step_metric="val/step")
+                self.trainer.wandb_logger.define_metric("val/AP25", step_metric="val/step")
+                self.wandb_define_metric = True
             self.trainer.wandb_logger.log(
                 {
                     "val/step": current_epoch,
