@@ -231,6 +231,7 @@ class Trainer(TrainerBase):
     def build_wandb(self):
         _wandb = wandb.init(
             project="pointcept",
+            entity="argos-platform",
             name=self.cfg.save_path.split("/")[-1],
             config=self.cfg,
             dir = self.cfg.save_path,
