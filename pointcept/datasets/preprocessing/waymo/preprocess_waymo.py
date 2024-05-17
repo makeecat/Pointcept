@@ -13,7 +13,7 @@ import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
+import cv2
 import argparse
 import numpy as np
 import tensorflow.compat.v1 as tf
@@ -93,6 +93,13 @@ def create_label(frame):
     labels = point_labels_all
     return labels
 
+def create_images(frame):
+    images = {}
+    for index, image in enumerate(frame.images):
+        img = tf.image.decode_jpeg(image.image).numpy()
+        img_type = open_dataset.CameraName.Name.Name(image.name).lower()
+        images[img_type] = img
+    return images
 
 def convert_range_image_to_cartesian(
     frame, range_images, range_image_top_pose, ri_index=0, keep_polar_features=False
@@ -324,6 +331,23 @@ def handle_process(file_path, output_root, test_frame_list):
             label = create_label(frame)[:, 1].reshape([-1]) - 1
             np.save(save_path / timestamp / "segment.npy", label)
 
+        # save images
+        images = create_images(frame)
+        image_save_path = {}
+        image_save_path['front'] = os.path.join(save_path, timestamp, 'front.jpg')
+        image_save_path['front_left'] = os.path.join(save_path, timestamp, 'front_left.jpg')
+        image_save_path['side_left'] = os.path.join(save_path, timestamp, 'side_left.jpg')
+        image_save_path['front_right'] = os.path.join(save_path, timestamp, 'front_right.jpg')
+        image_save_path['side_right'] = os.path.join(save_path, timestamp, 'side_right.jpg')
+        for k in images:
+            cv2.imwrite(image_save_path[k], images[k])
+
+        # save calibration
+        calibration = frame.context.camera_calibrations
+        extrinsics = np.array([c.extrinsic.transform for c in calibration], np.float32)
+        intrinsics = np.array([c.intrinsic for c in calibration], np.float32)
+        np.save(save_path / timestamp / "extrinsics.npy", extrinsics)
+        np.save(save_path / timestamp / "intrinsics.npy", intrinsics)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
