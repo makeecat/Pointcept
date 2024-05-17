@@ -37,9 +37,9 @@ while getopts "p:d:c:n:w:g:" opt; do
   esac
 done
 
-if [ "${NUM_GPU}" = 'None' ]
+if [ "${GPU}" = 'None' ]
 then
-  NUM_GPU=`$PYTHON -c 'import torch; print(torch.cuda.device_count())'`
+  GPU=`$PYTHON -c 'import torch; print(torch.cuda.device_count())'`
 fi
 
 echo "Experiment name: $EXP_NAME"
